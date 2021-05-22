@@ -636,9 +636,13 @@ pub fn verify_event(
             }
         };
 
-        let signature_bytes = decode_config(signature, STANDARD_NO_PAD)?;
+        let signature_bytes = decode_config(signature, STANDARD_NO_PAD).map_err(|e| {
+            Error::new(format!("Could not decode base64 of signature {}; {}", signature, e))
+        })?;
 
-        let public_key_bytes = decode_config(&public_key, STANDARD_NO_PAD)?;
+        let public_key_bytes = decode_config(&public_key, STANDARD_NO_PAD).map_err(|e| {
+            Error::new(format!("Could not decode base64 of public key {}; {}", public_key, e))
+        })?;
 
         verify_json_with(&Ed25519Verifier, &public_key_bytes, &signature_bytes, &canonical_json)?;
     }
